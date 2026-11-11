@@ -1,0 +1,30 @@
+name: Build NeuralTransient VST3
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure (CMake + JUCE)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VST3
+        run: cmake --build build --config Release --target NeuralTransient_VST3
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeuralTransient-${{ matrix.os }}
+          path: build/NeuralTransient_artefacts/Release/VST3/
